@@ -7,17 +7,9 @@
       "description": ""
     },
     "config": {
-      "shuffleQuestions": true,
-      "showPager": false,
-      "allowBack": true,
-      "autoMove": false,
-      "allowReview": false,
+
       "time": 10,
       "is_timed": true,
-      "total_question": "10",
-      "attempt_allowed": 4,
-      "has_deadline": false,
-      "is_gradable": false,
       "score": "10.00"
     },
     "questions": [{

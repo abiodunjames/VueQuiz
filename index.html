@@ -33,8 +33,7 @@
             <div class="container">
                 <div class="card-no-border">
                     <div class="card-block">
-                        <div class="row col-md-12" id="app" get_endpoint="quiz_data.json" post_endpoint=""
-                             quiz_ref_endpoint="">
+                        <div class="row col-md-12" id="app" get_endpoint="quiz_data.json" post_endpoint="">
                             <component :is="currentView" :quiz_details="quiz_details" transition="fade"
                                        transition-mode="out-in"></component>
                         </div>
@@ -58,15 +57,48 @@
 </div>
 
 <template id="quiz-submission-template">
-    <div class="row col-md-12">
-        <div class="text-center">
-            <img src="dist/img/checked.png" width="70">
-            <h3>Quiz submitted</h3>
-            <p class="alert alert-success">Your quiz has been submitted. :)</p>
+    <div class="col-md-8 offset-2">
+
+        <div class="alert alert-success">
+            <p>Your quiz was submitted successfully. You can revise your scores below </p>
         </div>
+        <div class="row mb-4" v-for="(question, index) in quiz_details.questions" :key="question.Id">
+            <div class="col-md-12">
+              <h4 class="text-left" ><span>  {{index+1}}. {{question.Name}}</span></h4>
+            </div>
+            <div class="text-left options row col-md-12">
+                <div class="option__container col-md-8">
+                    <div class="option row col-md-12" v-for="option in question.Options">
+                        <label class="custom-control custom-checkbox" :for="option.Id">
+                            <input :id="option.Id" type="checkbox" class="custom-control-input" disabled="disabled"
+                                   :value="option.Id"  :checked="isChosen(option.Id,question.Answered)"/>
+                            <span class="custom-control-indicator"></span>
+                            <span class="custom-control-description">{{option.Name}}</span>
+                        </label>
+                    </div>
+                    <div class="correct__answers col-md-12">
+                        <p class="m-0 small">Ans:</p>
+                        <ul class="list-unstyled m-0 small text-success">
+                            <li v-for="(option, index) in question.Options" :key="option.Id" v-show="option.IsAnswer">{{option.Name}}</li>
+                        </ul>
+                    </div>
+
+
+
+                </div>
+                <div class="col-md-4">
+                    {{grade(question)==true?'Correct':'Wrong'}}
+                </div>
+
+            </div>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-success" type="button" @click="startAgain">Retake Quiz</button>
+        </div>
+
+
     </div>
 </template>
-
 
 <!----Quiz ---->
 <template id="quiz-template">

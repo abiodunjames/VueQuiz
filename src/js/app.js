@@ -69,7 +69,7 @@ Vue.component('quiz-component', {
         toggleBtnVisibility: function () {
             var page = this.current_question;
             var total = this.total_question - 1;
-            if (page > 0 && page > total) {
+            if (page > 0 && page < total) {
                 this.showNext = true;
                 this.showPrev = true;
             }
@@ -103,8 +103,6 @@ Vue.component('quiz-component', {
             }
             if (this.minute == 0 && this.second == 0) {
                 //time up;
-                this.submitting = true;
-                //this.submitQuiz();
                 clearInterval(this.interval);
                 this.submit();
                 return;
@@ -147,9 +145,37 @@ Vue.component('loading-component', {
 
 Vue.component('success-response-component', {
     template: '#quiz-submission-template',
-    data: function () {
-        return {};
+    props:['quiz_details'],
+    methods: {
+        grade: function (question) {
+            var options =question.Options;
+                var answered =question.Answered;
+            var correct_options=[];
+            options.forEach( function (option) {
+                correct_options.push(option.Id);
+            })
+            //check if lengths are different
+            if(options.length !== answered.length) {
+                return false;
+            }
+            var sorted_Options = options.slice().sort().join(",");
+            var sorted_Answers= answered.slice().sort().join(",");
+            return sorted_Options===sorted_Answers;
+        },
+        isChosen: function (optionId,answers) {
+            for (var i = 0; i < answers.length; i++) {
+                if (answers[i] === optionId) {
+                    return true;
+                }
+            }
+            return false;
+        },
+        startAgain: function () {
+            this.$parent.getQuiz();
+        }
     }
+
+
 });
 
 var dom = document.getElementById("app");
@@ -158,7 +184,6 @@ var data = {
     currentView: 'loading-component',
     get_data_url: dom.getAttribute("get_endpoint"),
     post_data_url: dom.getAttribute("post_endpoint"),
-    log_data_url:dom.getAttribute("quiz_ref_endpoint"),
     log_id:null,
 }
 
@@ -193,6 +218,7 @@ new Vue({
 
             });
         },
+
         getQuiz: function () {
             if(this.get_data_url==null){
                 console.log('url not set! Quiz can not be loaded')
@@ -205,27 +231,10 @@ new Vue({
                     this.quiz_details = response.data;
                     console.log(this.quiz_details);
                     this.changeComponent('quiz-component');
-                    this.quizIsLoaded(response.data.quiz.Id);
                 } else {
                     console.log('Component not loaded');
                 }
             })
         },
-        quizIsLoaded: function (id) {
-                var params={quiz_id:id};
-                console.log('logging quiz')
-            if(this.log_data_url==null){
-                    console.log('quiz is loaded')
-                    return;
-            }
-            this.$http.post(this.log_data_url,params).then( function(response) {
-                var response = JSON.parse(response.bodyText);
-                console.log(response);
-                console.log('quiz is loaded');
-                if (response.status == true) {
-                    this.log_id = response.log_id;
-                }
-            })
-        }
     }
 })
